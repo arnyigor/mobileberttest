@@ -1,0 +1,64 @@
+[versions]
+agp = "8.8.0"
+hiltAndroid = "2.51.1"
+daggerCompiler = "2.44"
+kotlin = "1.9.24"
+coreKtx = "1.15.0"
+junit = "4.13.2"
+junitVersion = "1.1.5"
+espressoCore = "3.5.1"
+appcompat = "1.7.0"
+kotlinxCoroutinesCore = "1.7.3"
+litert = "1.0.1"
+material = "1.12.0"
+activity = "1.10.0"
+fragmentKtx = "1.8.5"
+lifecycleExt = "2.2.0"
+constraintlayout = "2.2.0"
+lifecycleLivedataKtx = "2.8.7"
+lifecycleViewmodelKtx = "2.8.7"
+glide = "4.11.0"
+tensorflowLite = "2.14.0"
+tensorflowLiteVersion = "0.0.0-nightly-SNAPSHOT"
+tensorflowSupport = "0.4.4"
+tensorflowGpu = "0.5.0"
+hilt = "2.51.1"
+timber = "5.0.1"
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+dagger = { module = "com.google.dagger:dagger", version.ref = "daggerCompiler" }
+dagger-android = { module = "com.google.dagger:dagger-android", version.ref = "daggerCompiler" }
+dagger-android-support = { module = "com.google.dagger:dagger-android-support", version.ref = "daggerCompiler" }
+dagger-android-processor = { module = "com.google.dagger:dagger-android-processor", version.ref = "daggerCompiler" }
+dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "daggerCompiler" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+litert = { module = "com.google.ai.edge.litert:litert", version.ref = "litert" }
+litert-support-api = { module = "com.google.ai.edge.litert:litert-support-api", version.ref = "litert" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+androidx-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-extensions", version.ref = "lifecycleExt" }
+androidx-fragmentKtx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragmentKtx" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
+androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+tensorflow = { group = "org.tensorflow", name = "tensorflow-lite", version.ref = "tensorflowLite" }
+tensorflow-gpu = { group = "org.tensorflow", name = "tensorflow-core-platform-gpu", version.ref = "tensorflowGpu" }
+tensorflow-lite-gpu = { module = "org.tensorflow:tensorflow-lite-gpu", version.ref = "tensorflowLite" }
+tensorflow-lite-metadata = { module = "org.tensorflow:tensorflow-lite-metadata", version.ref = "tensorflowSupport" }
+tensorflow-lite-select-tf-ops = { module = "org.tensorflow:tensorflow-lite-select-tf-ops", version.ref = "tensorflowLite" }
+tensorflow-lite-support = { module = "org.tensorflow:tensorflow-lite-support", version.ref = "tensorflowSupport" }
+tensorflow-lite-v000nightlysnapshot = { module = "org.tensorflow:tensorflow-lite", version.ref = "tensorflowLiteVersion" }
+tensorflow-support = { group = "org.tensorflow", name = "tensorflow-support", version.ref = "tensorflowSupport" }
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+hiltAndroidPlugin = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+

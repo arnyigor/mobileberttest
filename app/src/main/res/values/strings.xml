@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Mobile Bert Test</string>
+    <string name="test">Test</string>
+    <string name="enter_text">Введите текст</string>
+    <string name="analyse">Анализировать</string>
+    <string name="clear_text">Очистить</string>
+    <string name="search">Поиск</string>
+    <string name="model_select">Выбрать модель</string>
+    <string name="test_model">Проверка модели</string>
+    <string name="compare_models">Сравнить все модели</string>
+    <string name="load_model">Загрузить модель</string>
+    <string name="loading">Загрузка</string>
+    <string name="copy_to_board">Скопировать в буфер</string>
+    <string name="load_vocab">Загрузить vocab файл</string>
+</resources>

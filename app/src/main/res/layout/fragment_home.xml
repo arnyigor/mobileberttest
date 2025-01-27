@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/btnCopyToClipboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/copy_to_board" />
+
+    <EditText
+        android:layout_marginVertical="8dp"
+        android:id="@+id/inputEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints="false"
+        android:gravity="top"
+        android:text="Красная машина марки Volvo ехала со скоростью 150 км.ч и мигала фарами Philips 85415VIC1 D1S"
+        android:hint="@string/enter_text"
+        android:inputType="textMultiLine"
+        android:minLines="3" />
+
+    <Button
+        android:id="@+id/btnClear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/clear_text" />
+
+    <TextView
+        android:layout_marginTop="8dp"
+        android:text="@string/model_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Spinner
+        android:id="@+id/modelSelectionSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="8dp" />
+
+    <Button
+        android:id="@+id/btnLoadModel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/load_model" />
+
+    <Button
+        android:id="@+id/btnLoadVocab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/load_vocab" />
+
+    <Button
+        android:id="@+id/btnTest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/test_model" />
+
+    <Button
+        android:id="@+id/btnAnalyse"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/analyse" />
+
+    <Button
+        android:id="@+id/btnCompare"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/compare_models" />
+
+    <Button
+        android:id="@+id/btnSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/search" />
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/resultsTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" />
+
+    </ScrollView>
+
+</LinearLayout>
