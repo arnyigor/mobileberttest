@@ -20,7 +20,8 @@ import com.arny.mobilebert.data.ai.models.TextAnalysis
 import com.arny.mobilebert.data.ai.test.ModelComparisonManager
 import com.arny.mobilebert.data.search.SearchResult
 import com.arny.mobilebert.data.search.SmartSearchManager
-import com.arny.mobilebert.data.utils.ModelFileManager
+import com.arny.mobilebert.data.utils.AndroidAssetManager
+import com.arny.mobilebert.domain.ai.IModelFileManager
 import com.arny.mobilebert.domain.ai.ITestManager
 import com.arny.mobilebert.domain.ai.ITextAnalyzer
 import dagger.assisted.AssistedInject
@@ -43,7 +44,8 @@ class HomeViewModel @AssistedInject constructor(
     private val textAnalyzer: ITextAnalyzer,
     private val comparisonManager: ModelComparisonManager,
     private val testManager: ITestManager,
-    private val fileManager: ModelFileManager,
+    private val fileManager: IModelFileManager,
+    private val androidAssetManager: AndroidAssetManager
 ) : ViewModel() {
 
     init {
@@ -119,7 +121,7 @@ class HomeViewModel @AssistedInject constructor(
             try {
                 currentModelConfig?.let { config ->
                     _state.value = HomeUIState.Importing(false, config)
-                    fileManager.importModelFile(uri, config)
+                    androidAssetManager.importModelFile(uri, config)
                     _state.value = HomeUIState.SelectingVocab
                 }
             } catch (e: Exception) {
@@ -133,7 +135,7 @@ class HomeViewModel @AssistedInject constructor(
             try {
                 currentModelConfig?.let { config ->
                     _state.value = HomeUIState.Importing(true,config)
-                    fileManager.importVocabFile(uri, config)
+                    androidAssetManager.importVocabFile(uri, config)
                     if (fileManager.isModelComplete(config)) {
                         val modelInfo = getModelInfo(config)
                         _state.value = HomeUIState.Imported(modelInfo)
@@ -150,7 +152,7 @@ class HomeViewModel @AssistedInject constructor(
     private fun getModelInfo(modelConfig: ModelConfig): ModelInfo? {
         if (!fileManager.isModelDownloaded(modelConfig)) return null
 
-        val (modelSize, vocabSize) = fileManager.getModelSize(modelConfig)
+        val (modelSize, vocabSize) = fileManager.getModelSizeFull(modelConfig)
         return ModelInfo(
             name = modelConfig.modelName,
             modelSize = modelSize,

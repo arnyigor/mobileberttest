@@ -61,6 +61,9 @@ android {
         jvmTarget = "17"
     }
 
+    sourceSets["main"].java.srcDirs("src/main/java")
+    sourceSets["main"].jniLibs.srcDirs("src/main/jniLibs")
+
     aaptOptions {
         noCompress += "tflite"
     }
@@ -93,6 +96,9 @@ dependencies {
     implementation(libs.tensorflow.lite.select.tf.ops)
     implementation(libs.tensorflow.lite.gpu)
     implementation("org.tensorflow:tensorflow-lite:0.0.0-nightly-SNAPSHOT")
+    implementation("ai.djl.sentencepiece:sentencepiece:0.31.1")
+    implementation("ai.djl:api:0.31.1")
+    implementation("org.slf4j:slf4j-simple:2.0.7")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

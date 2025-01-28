@@ -1,45 +1,27 @@
 package com.arny.mobilebert.data.ai.tokenizers
 
-import android.content.Context
 import com.arny.mobilebert.data.ai.analyse.ModelConfig
 import com.arny.mobilebert.data.ai.models.TokenizeResult
 import com.arny.mobilebert.data.utils.ModelFileManager
 import com.arny.mobilebert.domain.ai.ITokenizer
 
 class RuBertTiny2Tokenizer(
-    context: Context,
     config: ModelConfig,
-    modelFileManager: ModelFileManager
-) : BaseTokenizer(context, config, modelFileManager), ITokenizer {
+    private val modelFileManager: ModelFileManager
+) : BaseTokenizer(config, modelFileManager), ITokenizer {
 
     override fun tokenize(text: String): TokenizeResult {
-        // Предобработка текста
-        val preprocessedTokens = preprocessText(text)
+        val tokens = sentenceTokenizer.tokenize(text)
 
-        // Добавление специальных токенов
-        val tokens = listOf("[CLS]") + preprocessedTokens + listOf("[SEP]")
-
-        // Получение ID токенов
-        val wordIds = tokens.map { token ->
-            getTokenId(token)
+        val wordIds = tokens.map { word ->
+            (vocab[word] ?: vocab["[UNK]"]!!).toLong()
         }
 
-        // Создание маски и типов
-        val maskIds = LongArray(wordIds.size) { 1L }
-        val typeIds = LongArray(wordIds.size) { 0L }
-
         return TokenizeResult(
-            inputIds = wordIds.map { it.toLong() }.toLongArray(),
-            maskIds = maskIds,
-            typeIds = typeIds,
+            inputIds = wordIds.toLongArray(),
+            maskIds = LongArray(wordIds.size) { 1L },
+            typeIds = LongArray(wordIds.size),
             tokens = tokens
         )
-    }
-
-    private fun preprocessText(text: String): List<String> {
-        return text.lowercase()
-            .replace("[^a-zа-яё0-9 \"\']".toRegex(), " ")
-            .split("\\s+".toRegex())
-            .filter { it.isNotEmpty() }
     }
 }

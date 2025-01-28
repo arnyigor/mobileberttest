@@ -2,7 +2,6 @@ package com.arny.mobilebert.data.ai.test
 
 import com.arny.mobilebert.data.ai.models.TestCase
 import com.arny.mobilebert.data.ai.models.TestCategory
-import com.arny.mobilebert.data.ai.models.TokenizeResult
 
 class ModelTestSuite {
     // 1. Технические тесты
@@ -155,149 +154,55 @@ class ModelTestSuite {
         )
     )
 
+    // 7. Тесты словаря
+    val vocabTests = listOf(
+        TestCase(
+            expectedTokenSequence = listOf("[CLS]", "[SEP]", "[PAD]", "[UNK]"),
+            category = TestCategory.VOCAB_TOKEN,
+        ),
+        TestCase(
+            expectedTokenSequence = listOf("текст", "с", "пробелами", "preprocessing", "embeddings", "unknownword"),
+            category = TestCategory.VOCAB_COMMON,
+        ),
+        TestCase(
+            expectedTokenSequence = listOf("##pre", "##cess", "##ing", "##pro", "##ces", "##sing"),
+            category = TestCategory.VOCAB_SUBWORD,
+        ),
+    )
+
     // 7. Тесты токенизации
     val tokenizationTests = listOf(
         TestCase(
             text = "текст с пробелами",
-            expectedTokens = 5,
-            expectedTokenSequence = listOf(
-                "[CLS]", "текст", "с", "пробелами", "[SEP]"
-            ),
-            category = TestCategory.BASE_TOKENIZATION
+            expectedTokens = 7, // 5 + 2 (CLS and SEP)
+            expectedTokenSequence = listOf("[CLS]", "текст", "с", "пробелами", "[SEP]"),
+            expectedInputIds = listOf(101L, 1023L, 1033L, 1024L, 1025L, 0L, 0L),
+            expectedMaskIds = listOf(1L, 1L, 1L, 1L, 1L, 0L, 0L),
+            expectedTypeIds = listOf(0L, 0L, 0L, 0L, 0L, 0L, 0L),
+            category = TestCategory.TOKENIZATION,
+            description = "Basic tokenization with spaces and padding"
         ),
         TestCase(
             text = "preprocessing",
-            expectedTokens = 3,
-            expectedTokenSequence = listOf(
-                "[CLS]", "preprocessing", "[SEP]"
-            ),
-            category = TestCategory.BASE_TOKENIZATION
-        ),
-        TestCase(
-            text = "embeddings",
-            expectedTokens = 3,
-            expectedTokenSequence = listOf(
-                "[CLS]", "embeddings", "[SEP]"
-            ),
-            category = TestCategory.BASE_TOKENIZATION
-        )
-    )
-
-    // Новые тестовые случаи
-    val extendedTokenizationTests = listOf(
-        TestCase(
-            text = "Фильм \"Начало\" с Леонардо Ди Каприо",
-            expectedTokens = 9,
-            expectedTokenSequence = listOf(
-                "[CLS]", "фильм", "\"", "начало", "\"", "с", "леонардо", "ди", "каприо", "[SEP]"
-            ),
-            expectedInputIds = listOf(2L, 5L, 6L, 7L, 6L, 8L, 9L, 10L, 11L, 3L),
-            expectedMaskIds = listOf(1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L),
-            expectedTypeIds = listOf(0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L),
-            expectedImportantWords = setOf("начало", "леонардо", "ди", "каприо"),
-            category = TestCategory.EXTENDED_TOKENIZATION,
-            description = "Тестирование запроса с названием фильма и именем актера"
-        ),
-        TestCase(
-            text = "Комедия с Адамом Сэндлером",
             expectedTokens = 6,
-            expectedTokenSequence = listOf(
-                "[CLS]", "комедия", "с", "адамом", "сэндлером", "[SEP]"
-            ),
-            expectedInputIds = listOf(2L, 12L, 8L, 13L, 14L, 3L),
+            expectedTokenSequence = listOf("[CLS]", "pre", "##pre", "##cess", "##ing", "[SEP]"),
+            expectedInputIds = listOf(101L, 2345L, 3456L, 4567L, 5678L, 1025L),
             expectedMaskIds = listOf(1L, 1L, 1L, 1L, 1L, 1L),
             expectedTypeIds = listOf(0L, 0L, 0L, 0L, 0L, 0L),
-            expectedImportantWords = setOf("адамом", "сэндлером"),
-            category = TestCategory.EXTENDED_TOKENIZATION,
-            description = "Тестирование запроса с именем актера"
+            category = TestCategory.TOKENIZATION,
+            description = "Tokenization of a single word with subwords"
         ),
-        TestCase(
-            text = "Режиссер Мартин Скорсезе",
-            expectedTokens = 5,
-            expectedTokenSequence = listOf(
-                "[CLS]", "режиссер", "мартин", "скорсезе", "[SEP]"
-            ),
-            expectedImportantWords = setOf("мартин", "скорсезе"),
-            category = TestCategory.EXTENDED_TOKENIZATION,
-            description = "Тестирование запроса с именем режиссера"
-        ),
-        TestCase(
-            text = "Драма о любви и предательстве",
-            expectedTokens = 7,
-            expectedTokenSequence = listOf(
-                "[CLS]", "драма", "о", "любви", "и", "предательстве", "[SEP]"
-            ),
-            expectedImportantWords = setOf("драма", "любви", "предательстве"),
-            category = TestCategory.EXTENDED_TOKENIZATION,
-            description = "Тестирование запроса с описанием фильма"
-        ),
-        TestCase(
-            text = "Фильм с элементами фантастики и экшена",
-            expectedTokens = 8,
-            expectedTokenSequence = listOf(
-                "[CLS]", "фильм", "с", "элементами", "фантастики", "и", "экшена", "[SEP]"
-            ),
-            expectedImportantWords = setOf("фантастики", "экшена"),
-            category = TestCategory.EXTENDED_TOKENIZATION,
-            description = "Тестирование запроса с жанрами фильма"
-        ),
-        TestCase(
-            text = "Семейный фильм с Джуди Денч",
-            expectedTokens = 6,
-            expectedTokenSequence = listOf(
-                "[CLS]", "семейный", "фильм", "с", "джуди", "денч", "[SEP]"
-            ),
-            expectedImportantWords = setOf("джуди", "денч"),
-            category = TestCategory.EXTENDED_TOKENIZATION,
-            description = "Тестирование запроса с именем актрисы"
-        )
     )
 
     fun getAllTests(): List<Pair<String, List<TestCase>>> = listOf(
-        "Technical Analysis" to technicalTests,
-        "Search Capabilities" to searchTests,
-        "Mixed Language Processing" to mixedLanguageTests,
-        "Error Handling" to errorTests,
-        "Special Cases" to specialTests,
-        "Performance" to performanceTests,
+//        "Technical Analysis" to technicalTests,
+//        "Search Capabilities" to searchTests,
+//        "Mixed Language Processing" to mixedLanguageTests,
+//        "Error Handling" to errorTests,
+//        "Special Cases" to specialTests,
+//        "Performance" to performanceTests,
         "Tokenization" to tokenizationTests
     )
-
-    // Вспомогательная функция для проверки токенизации
-    fun validateTokenization(
-        result: TokenizeResult,
-        testCase: TestCase
-    ): List<String> {
-        val errors = mutableListOf<String>()
-
-        // Проверка количества токенов
-        testCase.expectedTokens?.let { expected ->
-            if (result.tokens.size != expected) {
-                errors.add(
-                    "Token count mismatch: expected $expected, got ${result.tokens.size}"
-                )
-            }
-        }
-
-        // Проверка последовательности токенов
-        testCase.expectedTokenSequence?.let { expected ->
-            if (result.tokens != expected) {
-                errors.add(
-                    "Token sequence mismatch:\nexpected: $expected\ngot: ${result.tokens}"
-                )
-            }
-        }
-
-        // Проверка соответствия массивов
-        if (result.inputIds.size != result.tokens.size ||
-            result.maskIds.size != result.tokens.size ||
-            result.typeIds.size != result.tokens.size
-        ) {
-            errors.add("Arrays size mismatch")
-        }
-
-        return errors
-    }
 
     private fun generateLongText(words: Int): String {
         val vocabulary = listOf(

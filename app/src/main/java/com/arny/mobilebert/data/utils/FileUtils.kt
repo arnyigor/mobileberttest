@@ -3,12 +3,7 @@ package com.arny.mobilebert.data.utils
 import android.content.Context
 import android.util.Log
 
-fun getModelSize(context: Context, modelPath: String): Long = try {
-    context.assets.openFd(modelPath).use { fd -> fd.declaredLength }
-} catch (e: Exception) {
-    Log.e("FileUtils", "Error getting model size: ${e.message}")
-    0L
-}
+
 
 // Форматирование размера в читаемый вид
 fun formatFileSize(size: Long): String = when {

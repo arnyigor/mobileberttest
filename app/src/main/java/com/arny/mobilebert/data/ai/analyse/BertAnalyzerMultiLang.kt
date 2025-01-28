@@ -64,7 +64,7 @@ class BertAnalyzerMultiLang @Inject constructor(
                         // Проверка тензоров
                         logTensorDetails()
                         // загрузка токенов
-                        tokenizer = BertTokenizerMultiLang(context, config = config, mobilFileManager)
+                        tokenizer = BertTokenizerMultiLang(  config = config, mobilFileManager)
                     }
                 }
             }

@@ -8,7 +8,9 @@ import com.arny.mobilebert.data.ai.test.ModelComparisonManager
 import com.arny.mobilebert.data.ai.test.ModelTestManager
 import com.arny.mobilebert.data.search.SmartSearchManager
 import com.arny.mobilebert.data.search.TextFileProcessor
+import com.arny.mobilebert.data.utils.AndroidAssetManager
 import com.arny.mobilebert.data.utils.ModelFileManager
+import com.arny.mobilebert.domain.ai.IModelFileManager
 import com.arny.mobilebert.domain.ai.ITestManager
 import com.arny.mobilebert.domain.ai.ITextAnalyzer
 import dagger.Binds
@@ -40,8 +42,8 @@ interface DataModule {
 
         @Provides
         @Singleton
-        fun provideAIModelFactory(context: Context, modelFileManager: ModelFileManager): AIModelFactory {
-            return AIModelFactory(context, modelFileManager)
+        fun provideAIModelFactory(modelFileManager: ModelFileManager): AIModelFactory {
+            return AIModelFactory(modelFileManager)
         }
 
         @Provides
@@ -50,10 +52,11 @@ interface DataModule {
             return ModelComparisonManager(modelFactory)
         }
 
+
         @Provides
         @Singleton
-        fun provideModelFileManager(context: Context): ModelFileManager {
-            return ModelFileManager(context)
+        fun provideAndroidAssetLoader(context: Context): AndroidAssetManager {
+            return AndroidAssetManager(context)
         }
     }
 
@@ -64,5 +67,9 @@ interface DataModule {
     @Binds
     @Singleton
     fun bindsModelTestManager(impl: ModelTestManager): ITestManager
+
+    @Binds
+    @Singleton
+    fun bindsModelFileManager(impl: ModelFileManager): IModelFileManager
 
 }

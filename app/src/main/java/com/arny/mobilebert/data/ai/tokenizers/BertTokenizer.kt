@@ -1,16 +1,14 @@
 package com.arny.mobilebert.data.ai.tokenizers
 
-import android.content.Context
 import com.arny.mobilebert.data.ai.analyse.ModelConfig
 import com.arny.mobilebert.data.ai.models.TokenizeResult
 import com.arny.mobilebert.data.utils.ModelFileManager
 import com.arny.mobilebert.domain.ai.ITokenizer
 
 class BertTokenizer(
-    context: Context,
     config: ModelConfig,
     modelFileManager: ModelFileManager
-) : BaseTokenizer(context, config, modelFileManager), ITokenizer {
+) : BaseTokenizer(config, modelFileManager), ITokenizer {
 
     override fun tokenize(text: String): TokenizeResult {
         // Разбиваем на слова, сохраняя регистр для английских слов

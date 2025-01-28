@@ -79,16 +79,6 @@ class HomeFragment : Fragment() {
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, values)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.modelSelectionSpinner.adapter = adapter
-        binding.btnAnalyse.setOnClickListener {
-            viewModel.analyzeText(
-                binding.inputEditText.text.toString()
-            )
-        }
-        binding.btnSearch.setOnClickListener {
-            viewModel.performSearch(
-                binding.inputEditText.text.toString()
-            )
-        }
         binding.btnTest.setOnClickListener {
             viewModel.testModel(
                 values[binding.modelSelectionSpinner.selectedItemPosition]
@@ -105,9 +95,6 @@ class HomeFragment : Fragment() {
         binding.btnLoadVocab.setOnClickListener {
             viewModel.startImport(values[binding.modelSelectionSpinner.selectedItemPosition])
             startVocabImport()
-        }
-        binding.btnCompare.setOnClickListener {
-            viewModel.startComparison()
         }
         binding.btnCopyToClipboard.setOnClickListener {
             copyToClipboard()
@@ -151,8 +138,6 @@ class HomeFragment : Fragment() {
                 val progress = state == HomeUIState.Loading || state is HomeUIState.Progress
                 binding.btnTest.isEnabled = !progress
                 binding.btnClear.isEnabled = !progress
-                binding.btnSearch.isEnabled = !progress
-                binding.btnAnalyse.isEnabled = !progress
                 when (state) {
                     is HomeUIState.Error -> {
                         binding.resultsTextView.text = state.message
@@ -240,8 +225,6 @@ class HomeFragment : Fragment() {
             viewModel.uiEnabled.collectLatest { enabled ->
                 binding.btnTest.isEnabled = enabled
                 binding.btnClear.isEnabled = enabled
-                binding.btnSearch.isEnabled = enabled
-                binding.btnAnalyse.isEnabled = enabled
             }
         }
     }

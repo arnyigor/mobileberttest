@@ -18,22 +18,15 @@
         android:layout_height="wrap_content"
         android:autofillHints="false"
         android:gravity="top"
-        android:text="Красная машина марки Volvo ехала со скоростью 150 км.ч и мигала фарами Philips 85415VIC1 D1S"
         android:hint="@string/enter_text"
         android:inputType="textMultiLine"
-        android:minLines="3" />
+        android:maxLines="3" />
 
     <Button
         android:id="@+id/btnClear"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/clear_text" />
-
-    <TextView
-        android:layout_marginTop="8dp"
-        android:text="@string/model_select"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
 
     <Spinner
         android:id="@+id/modelSelectionSpinner"
@@ -58,25 +51,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/test_model" />
-
-    <Button
-        android:id="@+id/btnAnalyse"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/analyse" />
-
-    <Button
-        android:id="@+id/btnCompare"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/compare_models" />
-
-    <Button
-        android:id="@+id/btnSearch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/search" />
-
 
     <ScrollView
         android:layout_width="match_parent"

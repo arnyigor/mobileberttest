@@ -1,7 +1,7 @@
 package com.arny.mobilebert.data.ai.models
 
 data class TestCase(
-    val text: String,
+    val text: String = "",
     val expectedTokens: Int? = null,
     val expectedImportantWords: Set<String>? = null,
     val expectedProcessingTime: Long? = null,

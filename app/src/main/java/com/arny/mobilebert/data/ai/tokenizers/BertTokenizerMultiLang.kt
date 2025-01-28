@@ -1,23 +1,18 @@
 package com.arny.mobilebert.data.ai.tokenizers
 
-import android.content.Context
-import android.util.Log
 import com.arny.mobilebert.data.ai.analyse.ModelConfig
 import com.arny.mobilebert.data.ai.models.TokenizeResult
 import com.arny.mobilebert.data.utils.ModelFileManager
 import com.arny.mobilebert.domain.ai.ITokenizer
-import java.io.BufferedReader
-import java.io.InputStreamReader
 
 class BertTokenizerMultiLang(
-    context: Context,
     config: ModelConfig,
     modelFileManager: ModelFileManager
-) : BaseTokenizer(context, config, modelFileManager), ITokenizer {
+) : BaseTokenizer(config, modelFileManager), ITokenizer {
     private val unkToken = "[UNK]"
 
     override fun tokenize(text: String): TokenizeResult {
-       val tokens = text.lowercase()
+        val tokens = text.lowercase()
             .replace("[^a-zа-яё0-9 ]".toRegex(), " ")
             .split("\\s+".toRegex())
             .filter { it.isNotEmpty() }
@@ -33,7 +28,7 @@ class BertTokenizerMultiLang(
         return TokenizeResult(
             inputIds = wordIds.toLongArray(),
             maskIds = LongArray(wordIds.size) { 1L },
-            typeIds = LongArray(wordIds.size) { 0L },
+            typeIds = LongArray(wordIds.size),
             tokens = tokens
         )
     }

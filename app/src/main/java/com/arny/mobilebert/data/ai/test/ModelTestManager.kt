@@ -1,6 +1,5 @@
 package com.arny.mobilebert.data.ai.test
 
-import android.content.Context
 import android.os.Debug
 import android.util.Log
 import com.arny.mobilebert.data.ai.analyse.AIModelFactory
@@ -9,14 +8,13 @@ import com.arny.mobilebert.data.ai.models.InitializationResult
 import com.arny.mobilebert.data.ai.models.MemoryInfo
 import com.arny.mobilebert.data.ai.models.MemoryResult
 import com.arny.mobilebert.data.ai.models.MemoryStatistics
-import com.arny.mobilebert.data.ai.models.ModelInfo
 import com.arny.mobilebert.data.ai.models.TestCase
+import com.arny.mobilebert.data.ai.models.TestCategory
 import com.arny.mobilebert.data.ai.models.TestProgress
 import com.arny.mobilebert.data.ai.models.TestResult
 import com.arny.mobilebert.data.ai.models.TokenizeResult
 import com.arny.mobilebert.data.utils.ModelFileManager
 import com.arny.mobilebert.data.utils.formatFileSize
-import com.arny.mobilebert.data.utils.getModelSize
 import com.arny.mobilebert.domain.ai.ITestManager
 import com.arny.mobilebert.domain.ai.ITextAnalyzer
 import kotlinx.coroutines.delay
@@ -27,8 +25,8 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 class ModelTestManager @Inject constructor(
-    private val context: Context,
     private val modelFactory: AIModelFactory,
+    private val fileManager: ModelFileManager,
 ) : ITestManager {
     private var currentAnalyzer: ITextAnalyzer? = null
     private val memoryTracker = MemoryTracker()
@@ -40,8 +38,9 @@ class ModelTestManager @Inject constructor(
         emit(TestProgress.Started(modelConfig.modelName, iterations))
 
         try {
-            val modelSize = getModelSize(context, modelConfig.modelPath)
-            val vocabSize = getModelSize(context, modelConfig.vocabPath)
+
+            val modelSize = fileManager.getModelSize(modelConfig.modelPath)
+            val vocabSize = fileManager.getModelSize(modelConfig.vocabPath)
 
             prepareForTest(modelConfig)
 
@@ -306,11 +305,13 @@ class ModelTestManager @Inject constructor(
         appendLine("- Average Java Heap: ${maxOf(0, avgJavaHeap)}KB")
         appendLine("- Min total memory: ${maxOf(0, statistics.minMemory)}KB")
         appendLine("- Max total memory: ${statistics.maxMemory}KB")
-        appendLine("- Memory std dev: ${
-            calculateStdDev(initResults.map {
-                maxOf(0.0, (it.memoryInfo.nativeHeap + it.memoryInfo.javaHeap).toDouble())
-            })
-        }")
+        appendLine(
+            "- Memory std dev: ${
+                calculateStdDev(initResults.map {
+                    maxOf(0.0, (it.memoryInfo.nativeHeap + it.memoryInfo.javaHeap).toDouble())
+                })
+            }"
+        )
 
         appendLine("\nPSS Statistics:")
         val avgTotalPss = initResults.map { it.rawMemoryInfo.totalPss }.average()
@@ -324,32 +325,43 @@ class ModelTestManager @Inject constructor(
         appendLine("\nNative Heap Details:")
         val avgNativeHeapSize = initResults.map { it.rawMemoryInfo.nativeHeapSize }.average()
         val avgNativeHeapFree = initResults.map { it.rawMemoryInfo.nativeHeapFreeSize }.average()
-        val avgNativeHeapAllocated = initResults.map { it.rawMemoryInfo.nativeHeapAllocatedSize }.average()
+        val avgNativeHeapAllocated =
+            initResults.map { it.rawMemoryInfo.nativeHeapAllocatedSize }.average()
         appendLine("- Average Size: ${avgNativeHeapSize.roundToInt()}KB")
         appendLine("- Average Free: ${avgNativeHeapFree.roundToInt()}KB")
         appendLine("- Average Allocated: ${avgNativeHeapAllocated.roundToInt()}KB")
-        appendLine("- Average Usage: ${
-            (avgNativeHeapAllocated / (avgNativeHeapSize + 1) * 100).roundToInt()
-        }%")
+        appendLine(
+            "- Average Usage: ${
+                (avgNativeHeapAllocated / (avgNativeHeapSize + 1) * 100).roundToInt()
+            }%"
+        )
 
         appendLine("\nMemory Usage Statistics:")
-        appendLine("- Average Memory Usage: ${
-            initResults.map { it.memoryInfo.memoryUsage }.average().roundToInt()
-        }%")
-        appendLine("- Average Native Usage: ${
-            initResults.map { it.memoryInfo.nativeUsage }.average().roundToInt()
-        }%")
-        appendLine("- Memory Usage std dev: ${
-            calculateStdDev(initResults.map { it.memoryInfo.memoryUsage })
-        }")
+        appendLine(
+            "- Average Memory Usage: ${
+                initResults.map { it.memoryInfo.memoryUsage }.average().roundToInt()
+            }%"
+        )
+        appendLine(
+            "- Average Native Usage: ${
+                initResults.map { it.memoryInfo.nativeUsage }.average().roundToInt()
+            }%"
+        )
+        appendLine(
+            "- Memory Usage std dev: ${
+                calculateStdDev(initResults.map { it.memoryInfo.memoryUsage })
+            }"
+        )
 
         appendLine("\nPerformance Analysis:")
         appendLine("Time Distribution:")
         val timeDistribution = analyzeTimeDistribution(initResults)
         timeDistribution.forEach { (range, count) ->
-            appendLine("  $range ms: $count iterations (${
-                String.format("%.1f", count.toFloat() / iterations * 100)
-            }%)")
+            appendLine(
+                "  $range ms: $count iterations (${
+                    String.format("%.1f", count.toFloat() / iterations * 100)
+                }%)"
+            )
         }
 
         appendLine("\nPerformance Trend:")
@@ -369,8 +381,10 @@ class ModelTestManager @Inject constructor(
 
             // Анализ стабильности
             val timeStability = analyzeStability(initResults.map { it.time })
-            appendLine("- Time stability score: ${String.format("%.2f", timeStability)} " +
-                    "(${getStabilityDescription(timeStability)})")
+            appendLine(
+                "- Time stability score: ${String.format("%.2f", timeStability)} " +
+                        "(${getStabilityDescription(timeStability)})"
+            )
         }
     }
 
@@ -478,20 +492,20 @@ class ModelTestManager @Inject constructor(
                 appendLine("=== Model Initialization Report ===")
                 appendLine("Model: ${modelConfig.modelName}")
 
-               /* appendLine("\nTensor Information:")
-                appendLine("Input Tensors:")
-                tensorInfo.inputTensors.forEach { tensor ->
-                    appendLine("- Name: ${tensor.name}")
-                    appendLine("  Shape: ${tensor.shape.joinToString()}")
-                    appendLine("  Type: ${tensor.dataType}")
-                }
+                /* appendLine("\nTensor Information:")
+                 appendLine("Input Tensors:")
+                 tensorInfo.inputTensors.forEach { tensor ->
+                     appendLine("- Name: ${tensor.name}")
+                     appendLine("  Shape: ${tensor.shape.joinToString()}")
+                     appendLine("  Type: ${tensor.dataType}")
+                 }
 
-                appendLine("\nOutput Tensors:")
-                tensorInfo.outputTensors.forEach { tensor ->
-                    appendLine("- Name: ${tensor.name}")
-                    appendLine("  Shape: ${tensor.shape.joinToString()}")
-                    appendLine("  Type: ${tensor.dataType}")
-                }*/
+                 appendLine("\nOutput Tensors:")
+                 tensorInfo.outputTensors.forEach { tensor ->
+                     appendLine("- Name: ${tensor.name}")
+                     appendLine("  Shape: ${tensor.shape.joinToString()}")
+                     appendLine("  Type: ${tensor.dataType}")
+                 }*/
 
                 appendLine("\nDetailed Memory Usage:")
                 appendLine("Basic Memory:")
@@ -508,8 +522,12 @@ class ModelTestManager @Inject constructor(
                 appendLine("\nNative Memory:")
                 appendLine("- Native Allocated: ${memoryInfo.nativeHeapAllocatedSize}KB")
                 appendLine("- Native Free: ${memoryInfo.nativeHeapFreeSize}KB")
-                appendLine("- Native Usage: ${(memoryInfo.nativeHeapAllocatedSize.toFloat() / (memoryInfo.nativeHeapAllocatedSize + memoryInfo
-                    .nativeHeapFreeSize) * 100).roundToInt()}%")
+                appendLine(
+                    "- Native Usage: ${
+                        (memoryInfo.nativeHeapAllocatedSize.toFloat() / (memoryInfo.nativeHeapAllocatedSize + memoryInfo
+                            .nativeHeapFreeSize) * 100).roundToInt()
+                    }%"
+                )
 
                 appendLine("\nProcess Memory (PSS):")
                 appendLine("- Native PSS: ${memoryInfo.nativePss}KB")
@@ -522,8 +540,16 @@ class ModelTestManager @Inject constructor(
                 appendLine("- Total PSS Change: ${memoryInfo.totalPss - startMemory.totalPss}KB")
 
                 appendLine("\nMemory Efficiency:")
-                val memoryPerOutput = (memoryInfo.total - startMemory.total).toFloat() / modelConfig.outputShape[1]
-                appendLine("- Memory per output dimension: ${String.format("%.2f", memoryPerOutput)}KB")
+                val memoryPerOutput =
+                    (memoryInfo.total - startMemory.total).toFloat() / modelConfig.outputShape[1]
+                appendLine(
+                    "- Memory per output dimension: ${
+                        String.format(
+                            "%.2f",
+                            memoryPerOutput
+                        )
+                    }KB"
+                )
 
                 appendLine("\nMemory Usage Trend:")
                 appendLine(memoryTracker.getMemoryTrend())
@@ -541,53 +567,150 @@ class ModelTestManager @Inject constructor(
         }
     }
 
+    private fun validateVocabTest(testCase: TestCase, vocab: Map<String, Int>): List<String> {
+        val errors = mutableListOf<String>()
+        when (testCase.category) {
+            TestCategory.VOCAB_TOKEN -> {
+                testCase.expectedTokenSequence?.forEach { token ->
+                    if (!vocab.containsKey(token)) {
+                        errors.add("Special token '$token' is missing from the vocabulary")
+                    }
+                }
+            }
+            TestCategory.VOCAB_COMMON -> {
+                testCase.expectedTokenSequence?.forEach { word ->
+                    if (!vocab.containsKey(word) && !vocab.containsKey("##$word")) {
+                        errors.add("Common word or subword '$word' is missing from the vocabulary")
+                    }
+                }
+            }
+            TestCategory.VOCAB_SUBWORD -> {
+                testCase.expectedTokenSequence?.forEach { subword ->
+                    if (!vocab.containsKey(subword)) {
+                        errors.add("Subword '$subword' is missing from the vocabulary")
+                    }
+                }
+            }
+            else -> { }
+        }
+        return errors
+    }
+
     private fun validateTokenization(result: TokenizeResult, testCase: TestCase): List<String> {
         val errors = mutableListOf<String>()
 
         // Проверка количества токенов
         if (testCase.expectedTokens != null && result.tokens.size != testCase.expectedTokens) {
-            errors.add("Token count mismatch: expected ${testCase.expectedTokens}, got ${result.tokens.size}")
+            errors.add("Token count mismatch for '${testCase.text}': expected ${testCase.expectedTokens}, got ${result.tokens.size}")
         }
 
         // Проверка последовательности токенов
-        if (testCase.expectedTokenSequence != null && result.tokens != testCase.expectedTokenSequence) {
-            errors.add("Token sequence mismatch:\nexpected: ${testCase.expectedTokenSequence}\ngot: ${result.tokens}")
+        if (testCase.expectedTokenSequence != null) {
+            if (result.tokens.size != testCase.expectedTokenSequence.size) {
+                errors.add("Token sequence size mismatch for '${testCase.text}': expected ${testCase.expectedTokenSequence.size}, got ${result.tokens.size}")
+            } else {
+                result.tokens.forEachIndexed { index, token ->
+                    if (token != testCase.expectedTokenSequence[index]) {
+                        errors.add("Token sequence mismatch for '${testCase.text}' at index $index: expected '${testCase.expectedTokenSequence[index]}', got '$token'")
+                    }
+                }
+            }
         }
 
         // Проверка inputIds
-        if (testCase.expectedInputIds != null && !result.inputIds.contentEquals(testCase.expectedInputIds.toLongArray())) {
-            errors.add("InputIds mismatch:\nexpected: ${testCase.expectedInputIds}\ngot: ${result.inputIds.asList()}")
+        if (testCase.expectedInputIds != null) {
+            if (!result.inputIds.contentEquals(testCase.expectedInputIds.toLongArray())) {
+                errors.add("InputIds mismatch for '${testCase.text}':\nexpected: ${testCase.expectedInputIds}\ngot: ${result.inputIds.asList()}")
+            }
         }
 
         // Проверка maskIds
-        if (testCase.expectedMaskIds != null && !result.maskIds.contentEquals(testCase.expectedMaskIds.toLongArray())) {
-            errors.add("MaskIds mismatch:\nexpected: ${testCase.expectedMaskIds}\ngot: ${result.maskIds.asList()}")
+        if (testCase.expectedMaskIds != null) {
+            if (!result.maskIds.contentEquals(testCase.expectedMaskIds.toLongArray())) {
+                errors.add("MaskIds mismatch for '${testCase.text}':\nexpected: ${testCase.expectedMaskIds}\ngot: ${result.maskIds.asList()}")
+            }
         }
 
         // Проверка typeIds
-        if (testCase.expectedTypeIds != null && !result.typeIds.contentEquals(testCase.expectedTypeIds.toLongArray())) {
-            errors.add("TypeIds mismatch:\nexpected: ${testCase.expectedTypeIds}\ngot: ${result.typeIds.asList()}")
+        if (testCase.expectedTypeIds != null) {
+            if (!result.typeIds.contentEquals(testCase.expectedTypeIds.toLongArray())) {
+                errors.add("TypeIds mismatch for '${testCase.text}':\nexpected: ${testCase.expectedTypeIds}\ngot: ${result.typeIds.asList()}")
+            }
         }
 
         return errors
+    }
+
+    override suspend fun testVocab(modelConfig: ModelConfig): Flow<TestProgress> = flow {
+        val tokenizer = modelFactory.createTokenizer(modelConfig)
+        val testSuite = ModelTestSuite()
+
+        val vocabTests = testSuite.vocabTests
+        emit(TestProgress.Started(modelConfig.modelName, vocabTests.size))
+
+        var completedTests = 0
+        val errors = mutableListOf<String>()
+
+        vocabTests.forEach { testCase ->
+            try {
+                val vocab = tokenizer.getVocabMap()
+                val testErrors = validateVocabTest(testCase, vocab)
+
+                if (testErrors.isNotEmpty()) {
+                    errors.addAll(testErrors)
+                }
+            } catch (e: Exception) {
+                errors.add("Test case '${testCase.text}': ${e.message}")
+            }
+
+            completedTests++
+            emit(
+                TestProgress.Progress(
+                    phase = "Tokenization",
+                    current = completedTests,
+                    total = vocabTests.size,
+                    description = "Testing: ${testCase.text.take(50)}..."
+                )
+            )
+        }
+
+        val report = buildString {
+            appendLine("=== Tokenization Test Report ===")
+            appendLine("Model: ${modelConfig.modelName}")
+            appendLine("Test category: ${vocabTests.firstOrNull()?.category ?: "N/A"}")
+            appendLine("Total tests: ${vocabTests.size}")
+            appendLine("Passed: ${vocabTests.size - errors.size}")
+            if (errors.isNotEmpty()) {
+                appendLine("\nErrors:")
+                errors.forEach { error ->
+                    appendLine("- $error")
+                }
+            }
+        }
+
+        emit(TestProgress.Completed(modelConfig.modelName, report))
     }
 
     override suspend fun testTokenization(modelConfig: ModelConfig): Flow<TestProgress> = flow {
         val tokenizer = modelFactory.createTokenizer(modelConfig)
         val testSuite = ModelTestSuite()
 
-        val tokenizationTests = testSuite.extendedTokenizationTests
+        val tokenizationTests = testSuite.tokenizationTests
         emit(TestProgress.Started(modelConfig.modelName, tokenizationTests.size))
 
         var completedTests = 0
         val errors = mutableListOf<String>()
 
         tokenizationTests.forEach { testCase ->
-            val result = tokenizer.tokenize(testCase.text)
-            val testErrors = validateTokenization(result, testCase)
+            try {
+                val result = tokenizer.tokenize(testCase.text)
+                val testErrors = validateTokenization(result, testCase)
 
-            if (testErrors.isNotEmpty()) {
-                errors.addAll(testErrors)
+                if (testErrors.isNotEmpty()) {
+                    errors.addAll(testErrors)
+                }
+            } catch (e: Exception) {
+                errors.add("Test case '${testCase.text}': ${e.message}")
             }
 
             completedTests++
@@ -604,7 +727,7 @@ class ModelTestManager @Inject constructor(
         val report = buildString {
             appendLine("=== Tokenization Test Report ===")
             appendLine("Model: ${modelConfig.modelName}")
-            appendLine("Test category: ${tokenizationTests[0].category}")
+            appendLine("Test category: ${tokenizationTests.firstOrNull()?.category ?: "N/A"}")
             appendLine("Total tests: ${tokenizationTests.size}")
             appendLine("Passed: ${tokenizationTests.size - errors.size}")
             if (errors.isNotEmpty()) {

@@ -1,16 +1,14 @@
 package com.arny.mobilebert.data.ai.tokenizers
 
-import android.content.Context
 import com.arny.mobilebert.data.ai.analyse.ModelConfig
 import com.arny.mobilebert.data.ai.models.TokenizeResult
 import com.arny.mobilebert.data.utils.ModelFileManager
 import com.arny.mobilebert.domain.ai.ITokenizer
 
 class RuBertTokenizer(
-    context: Context,
     config: ModelConfig,
     modelFileManager: ModelFileManager
-) : BaseTokenizer(context, config, modelFileManager), ITokenizer {
+) : BaseTokenizer(config, modelFileManager), ITokenizer {
 
     // Специальные токены из словаря
     private val unkToken = "[UNK]"
